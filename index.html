@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mundo Samadry TV — Production Brain</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D0F14;
+    --surface: #14171F;
+    --surface2: #1B1F2B;
+    --border: #252A38;
+    --accent: #F5A623;
+    --accent2: #7B5EA7;
+    --accent3: #3ECFB2;
+    --accent4: #E85D75;
+    --text: #E8EAF0;
+    --muted: #6B7280;
+    --success: #3ECFB2;
+    --warning: #F5A623;
+    --danger: #E85D75;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 72px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    gap: 8px;
+    z-index: 100;
+  }
+
+  .logo {
+    width: 44px; height: 44px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: #000;
+    margin-bottom: 24px;
+    flex-shrink: 0;
+  }
+
+  .nav-btn {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--surface2);
+    color: var(--accent);
+  }
+  .nav-btn.active::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 25%; bottom: 25%;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 72px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    height: 64px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    background: rgba(13,15,20,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 50;
+  }
+
+  .topbar-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .topbar-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .badge-amber { background: rgba(245,166,35,0.15); color: var(--accent); border: 1px solid rgba(245,166,35,0.3); }
+  .badge-teal  { background: rgba(62,207,178,0.15); color: var(--accent3); border: 1px solid rgba(62,207,178,0.3); }
+  .badge-purple{ background: rgba(123,94,167,0.15); color: #A78BFA; border: 1px solid rgba(123,94,167,0.3); }
+  .badge-red   { background: rgba(232,93,117,0.15); color: var(--accent4); border: 1px solid rgba(232,93,117,0.3); }
+
+  /* CONTENT */
+  .content {
+    padding: 32px;
+    flex: 1;
+  }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* PAGE HEADER */
+  .page-header {
+    margin-bottom: 28px;
+  }
+  .page-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .page-header p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 6px;
+  }
+
+  /* GRID */
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-bottom: 24px; }
+
+  /* STAT CARD */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 0 16px 0 80px;
+    opacity: 0.06;
+  }
+  .stat-card.amber::after { background: var(--accent); }
+  .stat-card.teal::after  { background: var(--accent3); }
+  .stat-card.purple::after{ background: var(--accent2); }
+  .stat-card.red::after   { background: var(--accent4); }
+
+  .stat-icon {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .stat-delta {
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title span { font-size: 16px; }
+
+  /* PIPELINE TABLE */
+  .pipeline-table { width: 100%; border-collapse: collapse; }
+  .pipeline-table th {
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .pipeline-table td {
+    padding: 12px 12px;
+    border-bottom: 1px solid rgba(37,42,56,0.5);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+  .pipeline-table tr:last-child td { border-bottom: none; }
+  .pipeline-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* PIPELINE DOTS */
+  .pipe-steps { display: flex; gap: 4px; align-items: center; }
+  .pipe-dot {
+    width: 28px; height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+  }
+  .pipe-dot.done { background: var(--accent3); }
+  .pipe-dot.active { background: var(--accent); animation: pulse 1.5s ease infinite; }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* EP NUMBER */
+  .ep-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(245,166,35,0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  /* CHARACTER GRID */
+  .char-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .char-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .char-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(245,166,35,0.1);
+  }
+  .char-card .emoji { font-size: 40px; margin-bottom: 12px; display: block; }
+  .char-card .char-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .char-card .char-role {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .char-card .char-id {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 10px;
+    color: var(--border);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+  }
+  .char-card .char-status {
+    margin-top: 12px;
+    font-size: 11px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  /* VOICE INDICATOR */
+  .voice-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .voice-dot::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+  .voice-assigned { background: rgba(62,207,178,0.1); color: var(--accent3); }
+  .voice-assigned::before { background: var(--accent3); }
+  .voice-pending { background: rgba(107,114,128,0.15); color: var(--muted); }
+  .voice-pending::before { background: var(--muted); }
+
+  /* CONTINUITY FEED */
+  .feed-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .feed-body { flex: 1; }
+  .feed-ep { font-size: 11px; color: var(--accent); font-weight: 600; }
+  .feed-text { font-size: 13px; margin-top: 2px; line-height: 1.5; }
+  .feed-time { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* LANG TABLE */
+  .lang-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .lang-row:last-child { border-bottom: none; }
+  .lang-flag { font-size: 20px; width: 28px; text-align: center; }
+  .lang-name { width: 120px; font-weight: 500; }
+  .lang-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .lang-bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+  .lang-pct { width: 36px; text-align: right; color: var(--muted); font-size: 12px; }
+
+  /* SHORTS CARD */
+  .short-card {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .short-time {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(245,166,35,0.1);
+    padding: 4px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .short-title { font-size: 13px; font-weight: 500; }
+  .short-why { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .viral-score {
+    margin-left: auto;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ADD BUTTON */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-amber { background: var(--accent); color: #000; }
+  .btn-amber:hover { background: #f0b83a; transform: translateY(-1px); }
+  .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 540px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: fadeUp 0.3s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* FORM */
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* SEO SECTION */
+  .seo-lang-block {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .seo-lang-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .seo-field { margin-bottom: 8px; }
+  .seo-field-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 4px; }
+  .seo-field-value { font-size: 12px; line-height: 1.5; color: var(--text); }
+  .seo-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .seo-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    background: rgba(245,166,35,0.08);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: 20px;
+    color: var(--accent);
+  }
+
+  /* RELACIONES */
+  .rel-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .rel-line:last-child { border-bottom: none; }
+  .rel-arrow { color: var(--muted); font-size: 16px; }
+
+  /* TOOLTIP */
+  [data-tip] { position: relative; cursor: help; }
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1B1F2B;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    z-index: 999;
+    pointer-events: none;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ANIMATE IN */
+  .fade-in {
+    animation: fadeIn 0.4s ease both;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .delay-1 { animation-delay: 0.05s; }
+  .delay-2 { animation-delay: 0.1s; }
+  .delay-3 { animation-delay: 0.15s; }
+  .delay-4 { animation-delay: 0.2s; }
+
+  /* SCRIPT VIEWER */
+  .script-block {
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+  .script-speaker {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .script-line { font-size: 14px; line-height: 1.6; }
+  .script-action {
+    font-size: 12px;
+    color: var(--accent3);
+    font-style: italic;
+    margin-top: 4px;
+  }
+  .script-time {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  /* PROGRESS RING */
+  .progress-ring-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+  }
+  .ring-label { font-size: 13px; }
+  .ring-pct { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--muted);
+  }
+  .empty .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* CHAR DETAIL VIEW */
+  .char-detail { display: none; }
+  .char-detail.open { display: block; }
+
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .detail-emoji { font-size: 64px; line-height: 1; }
+  .detail-info h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+  }
+  .detail-info p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .info-item { background: var(--surface2); border-radius: 12px; padding: 14px 16px; }
+  .info-item-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .info-item-value { font-size: 14px; font-weight: 500; }
+
+  /* TAB BAR */
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    background: var(--surface2);
+    padding: 4px;
+    border-radius: 12px;
+    width: fit-content;
+  }
+  .tab {
+    padding: 8px 18px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">MS</div>
+  <button class="nav-btn active" onclick="showSection('dashboard')" data-tip="Dashboard">🎬</button>
+  <button class="nav-btn" onclick="showSection('episodios')" data-tip="Episodios">📋</button>
+  <button class="nav-btn" onclick="showSection('personajes')" data-tip="Censo Samadry">🎭</button>
+  <button class="nav-btn" onclick="showSection('continuidad')" data-tip="Continuidad">🧠</button>
+  <button class="nav-btn" onclick="showSection('localizacion')" data-tip="Localización">🌍</button>
+  <button class="nav-btn" onclick="showSection('seo')" data-tip="SEO Global">📈</button>
+  <button class="nav-btn" onclick="showSection('guiones')" data-tip="Guiones">✍️</button>
+  <button class="nav-btn" onclick="showSection('visuales')" data-tip="Activos Visuales">🎨</button>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title">MUNDO SAMADRY TV</div>
+    <div class="topbar-sub">Production Brain v1.0</div>
+    <div class="topbar-right">
+      <span class="badge badge-amber">🎬 Temporada 1</span>
+      <span class="badge badge-teal">✅ Sistema Activo</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION: DASHBOARD                          -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="section active" id="sec-dashboard">
+
+      <div class="page-header fade-in">
+        <h1>🎬 Centro de Mando</h1>
+        <p>Visión global del universo Mundo Samadry TV — Temporada 1</p>
+      </div>
+
+      <!-- STATS -->
+      <div class="grid-4">
+        <div class="stat-card amber fade-in delay-1">
+          <div class="stat-icon">🎭</div>
+          <div class="stat-value" id="total-chars">2</div>
+          <div class="stat-label">Personajes Registrados</div>
+          <div class="stat-delta" style="color:var(--muted)">de 40 planificados</div>
+        </div>
+        <div class="stat-card teal fade-in delay-2">
+          <div class="stat-icon">📋</div>
+          <div class="stat-value" id="total-eps">1</div>
+          <div class="stat-label">Episodios en Pipeline</div>
+          <div class="stat-delta" style="color:var(--accent3)">EP001 en producción</div>
+        </div>
+        <div class="stat-card purple fade-in delay-3">
+          <div class="stat-icon">🌍</div>
+          <div class="stat-value">5</div>
+          <div class="stat-label">Idiomas Activos</div>
+          <div class="stat-delta" style="color:#A78BFA">ES · EN · PT · AR · HI</div>
+        </div>
+        <div class="stat-card red fade-in delay-4">
+          <div class="stat-icon">🎙️</div>
+          <div class="stat-value">0</div>
+          <div class="stat-label">Voces ElevenLabs</div>
+          <div class="stat-delta" style="color:var(--accent4)">Pendientes de asignar</div>
+        </div>
+      </div>
+
+      <!-- MODULE E MINI STRIP -->
+      <div class="card fade-in" style="margin-bottom:24px;background:linear-gradient(135deg,rgba(62,207,178,0.06) 0%,rgba(123,94,167,0.06) 100%);border-color:rgba(62,207,178,0.2)">
+        <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent3);margin-bottom:4px">🎨 Módulo E — Activos Visuales</div>
+            <div style="font-size:13px;color:var(--muted)">Croma Key · 3D Soft Illustration · Librería de Fondos</div>
+          </div>
+          <div style="display:flex;gap:16px;margin-left:auto;flex-wrap:wrap">
+            <div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent3)">0</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase">Fondos Listos</div></div>
+            <div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent)">1</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase">Por Generar</div></div>
+            <div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#A78BFA">8</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase">Planificados T1</div></div>
+            <button class="btn btn-ghost" style="font-size:12px" onclick="showSection('visuales')">Ver librería →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PIPELINE + CONTINUITY -->
+      <div class="grid-2">
+        <div class="card fade-in">
+          <div class="card-title"><span>📋</span> Pipeline de Producción</div>
+          <table class="pipeline-table">
+            <thead>
+              <tr>
+                <th>EP</th>
+                <th>TÍTULO</th>
+                <th>PROGRESO</th>
+                <th>ESTADO</th>
+              </tr>
+            </thead>
+            <tbody id="pipeline-tbody">
+              <tr>
+                <td><span class="ep-num">EP001</span></td>
+                <td style="font-weight:500">Por definir</td>
+                <td>
+                  <div class="pipe-steps">
+                    <div class="pipe-dot active" data-tip="Guion"></div>
+                    <div class="pipe-dot" data-tip="Audio"></div>
+                    <div class="pipe-dot" data-tip="Rodaje"></div>
+                    <div class="pipe-dot" data-tip="Edición"></div>
+                    <div class="pipe-dot" data-tip="Publicado"></div>
+                  </div>
+                </td>
+                <td><span class="badge badge-amber">Guion</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:16px">
+            <button class="btn btn-amber" onclick="openModal('modal-ep')">+ Nuevo Episodio</button>
+          </div>
+        </div>
+
+        <div class="card fade-in delay-1">
+          <div class="card-title"><span>🧠</span> Registro de Continuidad</div>
+          <div id="continuity-feed">
+            <div class="empty">
+              <div class="empty-icon">📭</div>
+              <p>Sin eventos registrados aún.<br>El primer episodio los generará.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOCALIZATION OVERVIEW -->
+      <div class="card fade-in">
+        <div class="card-title"><span>🌍</span> Progreso de Localización — EP001</div>
+        <div id="lang-bars">
+          <div class="lang-row">
+            <span class="lang-flag">🇪🇸</span>
+            <span class="lang-name">Español (Base)</span>
+            <div class="lang-bar-wrap"><div class="lang-bar" style="width:15%;background:var(--accent)"></div></div>
+            <span class="lang-pct">15%</span>
+          </div>
+          <div class="lang-row">
+            <span class="lang-flag">🇺🇸</span>
+            <span class="lang-name">Inglés</span>
+            <div class="lang-bar-wrap"><div class="lang-bar" style="width:0%;background:#A78BFA"></div></div>
+            <span class="lang-pct">0%</span>
+          </div>
+          <div class="lang-row">
+            <span class="lang-flag">🇧🇷</span>
+            <span class="lang-name">Portugués</span>
+            <div class="lang-bar-wrap"><div class="lang-bar" style="width:0%;background:var(--accent3)"></div></div>
+            <span class="lang-pct">0%</span>
+          </div>
+          <div class="lang-row">
+            <span class="lang-flag">🇸🇦</span>
+            <span class="lang-name">Árabe</span>
+            <div class="lang-bar-wrap"><div class="lang-bar" style="width:0%;background:var(--accent4)"></div></div>
+            <span class="lang-pct">0%</span>
+          </div>
+          <div class="lang-row">
+            <span class="lang-flag">🇮🇳</span>
+            <span class="lang-name">Hindi</span>
+            <div class="lang-bar-wrap"><div class="lang-bar" style="width:0%;background:#60A5FA"></div></div>
+            <span class="lang-pct">0%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION: EPISODIOS                          -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="section" id="sec-episodios">
+      <div class="page-header">
+        <h1>📋 Episodios</h1>
+        <p>Pipeline completo de producción — Módulo D</p>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:24px">
+        <button class="btn btn-amber" onclick="openModal('modal-ep')">+ Nuevo Episodio</button>
+        <button class="btn btn-ghost" onclick="openModal('modal-batch')">📦 Batching (×4)</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🎬</span> Todos los Episodios</div>
+        <table class="pipeline-table" style="width:100%">
+          <thead>
+            <tr>
+              <th>EP</th>
+              <th>TÍTULO</th>
+              <th>PERSONAJES</th>
+              <th>MORAL</th>
+              <th>GUION</th>
+              <th>AUDIO</th>
+              <th>RODAJE</th>
+              <th>EDICIÓN</th>
+              <th>PUBLICADO</th>
+            </tr>
+          </thead>
+          <tbody id="eps-full-tbody">
+            <tr>
+              <td><span class="ep-num">EP001</span></td>
+              <td style="font-weight:500;min-width:140px">Por definir</td>
+              <td><span style="font-size:20px">🦁🐘</span></td>
+              <td style="font-size:12px;color:var(--muted);max-width:160px">Por confirmar</td>
+              <td style="text-align:center">🟡</td>
+              <td style="text-align:center">⬜</td>
+              <td style="text-align:center">⬜</td>
+              <td style="text-align:center">⬜</td>
+              <td style="text-align:center">⬜</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:12px;font-size:12px;color:var(--muted)">🟡 En proceso &nbsp;&nbsp; ✅ Completado &nbsp;&nbsp; ⬜ Pendiente</div>
+      </div>
+
+      <!-- SKILL BATCHING -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-title"><span>📦</span> Skill: Batching — Episodios por Escenografía</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Agrupa 4 guiones en el mismo escenario para maximizar el tiempo de rodaje.</p>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" id="batch-slots">
+          <div style="background:var(--surface2);border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;color:var(--muted);font-size:13px">
+            + Slot 1<br><small>EP002</small>
+          </div>
+          <div style="background:var(--surface2);border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;color:var(--muted);font-size:13px">
+            + Slot 2<br><small>EP003</small>
+          </div>
+          <div style="background:var(--surface2);border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;color:var(--muted);font-size:13px">
+            + Slot 3<br><small>EP004</small>
+          </div>
+          <div style="background:var(--surface2);border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;color:var(--muted);font-size:13px">
+            + Slot 4<br><small>EP005</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION: PERSONAJES                         -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="section" id="sec-personajes">
+
+      <!-- LIST VIEW -->
+      <div id="char-list-view">
+        <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div>
+            <h1>🎭 Censo de Samadry</h1>
+            <p>Módulo A — Registro maestro de personajes</p>
+          </div>
+          <button class="btn btn-amber" onclick="openModal('modal-char')">+ Nuevo Personaje</button>
+        </div>
+
+        <div class="char-grid" id="char-grid">
+          <!-- LEO -->
+          <div class="char-card" onclick="openCharDetail('leo')">
+            <span class="char-id">MST-001</span>
+            <span class="emoji">🦁</span>
+            <div class="char-name">Leo el León</div>
+            <div class="char-role">El Héroe Entusiasta</div>
+            <div class="char-status">
+              <span class="voice-dot voice-pending">Sin voz</span>
+              <span class="badge badge-amber" style="font-size:10px">EP001</span>
+            </div>
+          </div>
+          <!-- BUBA -->
+          <div class="char-card" onclick="openCharDetail('buba')">
+            <span class="char-id">MST-002</span>
+            <span class="emoji">🐘</span>
+            <div class="char-name">Buba el Elefante</div>
+            <div class="char-role">El Amigo Leal</div>
+            <div class="char-status">
+              <span class="voice-dot voice-pending">Sin voz</span>
+              <span class="badge badge-amber" style="font-size:10px">EP001</span>
+            </div>
+          </div>
+          <!-- EMPTY SLOTS -->
+          <div style="background:var(--surface);border:2px dashed var(--border);border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;cursor:pointer;min-height:140px" onclick="openModal('modal-char')">
+            + Personaje #003
+          </div>
+          <div style="background:var(--surface);border:2px dashed var(--border);border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;cursor:pointer;min-height:140px" onclick="openModal('modal-char')">
+            + Personaje #004
+          </div>
+        </div>
+        <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:20px">
+          2 de 40 personajes registrados — <span style="color:var(--accent)">Quedan 38 por incorporar</span>
+        </p>
+      </div>
+
+      <!-- DETAIL VIEW: LEO -->
+      <div class="char-detail" id="detail-leo">
+        <button class="btn btn-ghost" onclick="closeCharDetail()" style="margin-bottom:20px">← Volver al Censo</button>
+        <div class="detail-header">
+          <div class="detail-emoji">🦁</div>
+          <div class="detail-info">
+            <h2>Leo el León</h2>
+            <p>MST-001 · El Héroe Entusiasta</p>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <span class="badge badge-amber">EP001</span>
+              <span class="voice-dot voice-pending" style="font-size:12px;padding:4px 10px">Sin voz ElevenLabs</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab active" onclick="switchTab(this,'leo-perfil')">Perfil</button>
+          <button class="tab" onclick="switchTab(this,'leo-voz')">Voz & Parámetros</button>
+          <button class="tab" onclick="switchTab(this,'leo-rel')">Relaciones</button>
+          <button class="tab" onclick="switchTab(this,'leo-hist')">Historial</button>
+        </div>
+
+        <div class="tab-content active" id="leo-perfil">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-item-label">Arquetipo Psicológico</div>
+              <div class="info-item-value">El Héroe Entusiasta</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Muletilla</div>
+              <div class="info-item-value" style="color:var(--accent);font-style:italic">⚡ Por definir</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Enseñanza Moral</div>
+              <div class="info-item-value">El valor nace del corazón, no del tamaño</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Tono de Voz</div>
+              <div class="info-item-value">Siempre entusiasta · Nunca plano</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="leo-voz">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-item-label">ID Voz ElevenLabs</div>
+              <div class="info-item-value" style="color:var(--muted)">Pendiente</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Nombre de Voz</div>
+              <div class="info-item-value" style="color:var(--muted)">Marcus (propuesto)</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Stability</div>
+              <div class="info-item-value" style="color:var(--muted)">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Clarity / Enhancement</div>
+              <div class="info-item-value" style="color:var(--muted)">—</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Style Exaggeration</div>
+              <div class="info-item-value" style="color:var(--muted)">—</div>
+            </div>
+          </div>
+          <button class="btn btn-amber" onclick="openModal('modal-voice-leo')">🎙️ Asignar Voz</button>
+        </div>
+
+        <div class="tab-content" id="leo-rel">
+          <div class="card">
+            <div class="card-title"><span>🔗</span> Relaciones Conocidas</div>
+            <div class="rel-line">🦁 Leo <span class="rel-arrow">↔️</span> 🐘 Buba <span style="font-size:12px;color:var(--accent3);margin-left:auto">Amigos íntimos</span></div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <div class="card-title"><span>🚫</span> Aún No Conoce</div>
+            <div class="rel-line">🦁 Leo <span class="rel-arrow">✖️</span> 🐒 Mambo el Mono <span style="font-size:12px;color:var(--muted);margin-left:auto">Sin relación</span></div>
+            <div style="font-size:12px;color:var(--muted);padding:8px 0">+ 37 personajes por incorporar</div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="leo-hist">
+          <div class="empty">
+            <div class="empty-icon">📭</div>
+            <p>Sin episodios publicados aún.<br>El historial se construye con cada episodio.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETAIL VIEW: BUBA -->
+      <div class="char-detail" id="detail-buba">
+        <button class="btn btn-ghost" onclick="closeCharDetail()" style="margin-bottom:20px">← Volver al Censo</button>
+        <div class="detail-header">
+          <div class="detail-emoji">🐘</div>
+          <div class="detail-info">
+            <h2>Buba el Elefante</h2>
+            <p>MST-002 · El Amigo Leal / Corazón Gigante</p>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <span class="badge badge-amber">EP001</span>
+              <span class="voice-dot voice-pending" style="font-size:12px;padding:4px 10px">Sin voz ElevenLabs</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab active" onclick="switchTab(this,'buba-perfil')">Perfil</button>
+          <button class="tab" onclick="switchTab(this,'buba-voz')">Voz & Parámetros</button>
+          <button class="tab" onclick="switchTab(this,'buba-rel')">Relaciones</button>
+          <button class="tab" onclick="switchTab(this,'buba-hist')">Historial</button>
+        </div>
+
+        <div class="tab-content active" id="buba-perfil">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-item-label">Arquetipo Psicológico</div>
+              <div class="info-item-value">El Amigo Leal / Corazón Gigante</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Muletilla</div>
+              <div class="info-item-value" style="color:var(--accent);font-style:italic">⚡ Por definir</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Enseñanza Moral</div>
+              <div class="info-item-value">La fuerza más grande es ayudar a los demás</div>
+            </div>
+            <div class="info-item">
+              <div class="info-item-label">Tono de Voz</div>
+              <div class="info-item-value">Cálido · Pausado · Tierno</div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-content" id="buba-voz">
+          <div class="info-grid">
+            <div class="info-item"><div class="info-item-label">ID Voz ElevenLabs</div><div class="info-item-value" style="color:var(--muted)">Pendiente</div></div>
+            <div class="info-item"><div class="info-item-label">Stability</div><div class="info-item-value" style="color:var(--muted)">—</div></div>
+            <div class="info-item"><div class="info-item-label">Clarity</div><div class="info-item-value" style="color:var(--muted)">—</div></div>
+            <div class="info-item"><div class="info-item-label">Style</div><div class="info-item-value" style="color:var(--muted)">—</div></div>
+          </div>
+          <button class="btn btn-amber">🎙️ Asignar Voz</button>
+        </div>
+        <div class="tab-content" id="buba-rel">
+          <div class="card">
+            <div class="card-title"><span>🔗</span> Relaciones Conocidas</div>
+            <div class="rel-line">🐘 Buba <span class="rel-arrow">↔️</span> 🦁 Leo <span style="font-size:12px;color:var(--accent3);margin-left:auto">Amigos íntimos</span></div>
+          </div>
+        </div>
+        <div class="tab-content" id="buba-hist">
+          <div class="empty"><div class="empty-icon">📭</div><p>Sin historial aún.</p></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION: CONTINUIDAD                        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="section" id="sec-continuidad">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <h1>🧠 Registro de Continuidad</h1>
+          <p>Módulo B — Memoria del universo. Sin contradicciones.</p>
+        </div>
+        <button class="btn btn-amber" onclick="openModal('modal-event')">+ Registrar Evento</button>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span>📖</span> Eventos Canónicos</div>
+          <div class="empty">
+            <div class="empty-icon">📭</div>
+            <p>El primer episodio generará los eventos canónicos del universo.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span>🌱</span> Aprendizajes por Personaje</div>
+          <div style="font-size:13px;color:var(--muted);padding:8px 0;border-bottom:1px solid var(--border)">
+            🦁 <strong style="color:var(--text)">Leo</strong> — Sin aprendizajes registrados
+          </div>
+          <div style="font-size:13px;color:var(--muted);padding:8px 0">
+            🐘 <strong style="color:var(--text)">Buba</strong> — Sin aprendizajes registrados
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🚫</span> Detector de Contradicciones</div>
+        <div style="display:flex;align-items:center;gap:12px;padding:16px;background:rgba(62,207,178,0.06);border-radius:12px;border:1px solid rgba(62,207,178,0.15)">
+          <span style="font-size:24px">✅</span>
+          <div>
+            <div style="font-size:14px;font-weight:500;color:var(--accent3)">Sin contradicciones detectadas</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">El universo Samadry está en orden canónico perfecto</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION: LOCALIZACIÓN                       -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="section" id="sec-localizacion">
+      <div class="page-header">
+        <h1>🌍 Motor de Localización</h1>
+        <p>Módulo C — Adaptación cultural en 5 idiomas</p>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title"><span>📋</span> Seleccionar Episodio</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn btn-amber">EP001 — Por definir</button>
+        </div>
+      </div>
+
+      <div id="loc-content">
+        <div class="grid-2">
+          <div class="seo-lang-block">
+            <div class="seo-lang-header">🇪🇸 Español (Base)</div>
+            <div class="seo-field">
+              <div class="seo-field-label">Estado Guion</div>
+              <div class="seo-field-value"><span class="badge badge-amber">En proceso</span></div>
+            </div>
+            <div class="seo-field">
+              <div class="seo-field-label">Adaptaciones Culturales</div>
+              <div class="seo-field-value" style="color:var(--muted)">Pendiente de guion completo</div>
+            </div>
+          </div>
+          <div class="seo-lang-block">
+            <div class="seo-lang-header">🇺🇸 English (US/UK)</div>
+            <div class="seo-field">
+              <div class="seo-field-label">Estado</div>
+              <div class="seo-field-value"><span class="badge" style="background:rgba(107,114,128,0.15);color:var(--muted);border:1px solid var(--border)">Pendiente</span></div>
+            </div>
+          </div>
+          <div class="seo-lang-block">
+            <div class="seo-lang-header">🇧🇷 Português (Brasil)</div>
+            <div class="seo-field">
+              <div class="seo-field-label">Estado</div>
+              <div class="seo-field-value"><span class="badge" style="background:rgba(107,114,128,0.15);color:var(--muted);border:1px solid var(--border)">Pendiente</span></div>
+            </div>
+          </div>
+          <div class="seo-lang-block">
+            <div class="seo-lang-header">🇸🇦 العربية</div>
+            <div class="seo-field">
+              <div class="seo-field-label">Estado</div>
+              <div class="seo-field-value"><span class="badge" style="background:rgba(107,114,128,0.15);color:var(--muted);border:1px solid var(--border)">Pendiente</span></div>
+            </div>
+          </div>
+          <div class="seo-lang-block" style="grid-column:span 2">
+            <div class="seo-lang-header">🇮🇳 हिन्दी</div>
+            <div class="seo-field">
+              <div class="seo-field-label">Estado</div>
+              <div class="seo-field-value"><span class="badge" style="background:rgba(107,114,128,0.15);color:var(--muted);border:1px solid var(--border)">Pendiente</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:12px">
+          <button class="btn btn-amber">🤖 Generar Localización con IA</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION: SEO                                -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="section" id="sec-seo">
+      <div class="page-header">
+        <h1>📈 SEO Global</h1>
+        <p>Títulos, descripciones y etiquetas para YouTube en 5 idiomas</p>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title"><span>🎬</span> Episodio Activo: EP001</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:13px;color:var(--muted)">Título aún sin definir · Genera el SEO una vez el título esté confirmado</span>
+          <button class="btn btn-amber" style="margin-left:auto">🤖 Generar SEO ×5 idiomas</button>
+        </div>
+      </div>
+
+      <!-- SEO PREVIEW EP001 SAMPLE -->
+      <div class="card">
+        <div class="card-title"><span>📋</span> Previsualización SEO — Ejemplo EP001</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Se generará automáticamente cuando tengas el título y guion del EP001.</p>
+
+        <div class="seo-lang-block">
+          <div class="seo-lang-header">🇪🇸 Español</div>
+          <div class="seo-field">
+            <div class="seo-field-label">Título YouTube</div>
+            <div class="seo-field-value" style="color:var(--muted);font-style:italic">Pendiente de generación</div>
+          </div>
+          <div class="seo-field">
+            <div class="seo-field-label">Descripción (500 chars)</div>
+            <div class="seo-field-value" style="color:var(--muted);font-style:italic">Pendiente...</div>
+          </div>
+          <div class="seo-tags">
+            <span class="seo-tag">+ Generar etiquetas</span>
+          </div>
+        </div>
+
+        <!-- SHORTS CUTTER -->
+        <div style="margin-top:24px">
+          <div class="card-title"><span>✂️</span> Skill: Shorts-Cutter — Momentos Virales</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Se identificarán automáticamente los 3 mejores momentos del episodio para convertir en Shorts.</p>
+          <div class="short-card" style="opacity:0.4">
+            <div class="short-time">00:00–00:00</div>
+            <div><div class="short-title" style="color:var(--muted)">Momento 1 — Pendiente</div><div class="short-why">Se detectará tras el guion definitivo</div></div>
+            <div class="viral-score" style="color:var(--muted)">—%</div>
+          </div>
+          <div class="short-card" style="opacity:0.4">
+            <div class="short-time">00:00–00:00</div>
+            <div><div class="short-title" style="color:var(--muted)">Momento 2 — Pendiente</div></div>
+            <div class="viral-score" style="color:var(--muted)">—%</div>
+          </div>
+          <div class="short-card" style="opacity:0.4">
+            <div class="short-time">00:00–00:00</div>
+            <div><div class="short-title" style="color:var(--muted)">Momento 3 — Pendiente</div></div>
+            <div class="viral-score" style="color:var(--muted)">—%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION: GUIONES                            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="section" id="sec-guiones">
+      <div class="page-header">
+        <h1>✍️ Visor de Guiones</h1>
+        <p>Formato técnico con acotaciones de movimiento y marcas ElevenLabs</p>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+        <button class="btn btn-amber" onclick="openModal('modal-ep')">+ Crear Guion</button>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <span class="badge badge-amber">EP001 — Activo</span>
+        </div>
+      </div>
+
+      <!-- EP001 SCRIPT PLACEHOLDER -->
+      <div class="card">
+        <div class="card-title"><span>📜</span> EP001 — Guion Técnico</div>
+        <div style="display:flex;gap:12px;margin-bottom:20px;align-items:center;flex-wrap:wrap">
+          <span class="badge badge-amber">🟡 En Construcción</span>
+          <span style="font-size:13px;color:var(--muted)">Personajes: 🦁 Leo · 🐘 Buba</span>
+          <span style="font-size:13px;color:var(--muted)">Duración est.: ~3 min</span>
+        </div>
+
+        <!-- ESTRUCTURA 3 ACTOS -->
+        <div style="margin-bottom:16px">
+          <div style="font-family:'Syne',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:8px">⚡ ACTO 1 — HOOK (0–15 seg)</div>
+          <div class="script-block">
+            <div style="color:var(--muted);font-size:13px;font-style:italic">Hook por definir — Necesito el tema del EP001.</div>
+            <div class="script-action">Propuesta: Apertura visual impactante + aparición de Leo</div>
+            <div class="script-time">⏱ 0:00 — 0:15 · ElevenLabs: Leo voz "Marcus"</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px">
+          <div style="font-family:'Syne',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent3);margin-bottom:8px">🎭 ACTO 2 — CONFLICTO (0:15–2:30)</div>
+          <div class="script-block" style="border-left:3px solid var(--accent3);padding-left:16px">
+            <div class="script-speaker">LEO 🦁</div>
+            <div class="script-line" style="color:var(--muted);font-style:italic">[Diálogo pendiente de definición del tema]</div>
+            <div class="script-action">[Leo abre mucho la boca · Mueve las patas con energía]</div>
+            <div class="script-time">⏱ 0:15 · Stability: — · Clarity: — · Style: —</div>
+          </div>
+          <div class="script-block" style="border-left:3px solid #A78BFA;padding-left:16px">
+            <div class="script-speaker" style="color:#A78BFA">BUBA 🐘</div>
+            <div class="script-line" style="color:var(--muted);font-style:italic">[Respuesta de Buba · Tono cálido y pausado]</div>
+            <div class="script-action">[Buba mueve la trompa · Inclina la cabeza]</div>
+            <div class="script-time">⏱ 0:30 · Stability: — · Clarity: — · Style: —</div>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent2);margin-bottom:8px">🌟 ACTO 3 — RESOLUCIÓN (2:30–3:00)</div>
+          <div class="script-block" style="border-left:3px solid var(--accent2);padding-left:16px">
+            <div style="color:var(--muted);font-size:13px;font-style:italic">Cierre con la enseñanza moral · Pendiente de tema del episodio</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding:16px;background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2);border-radius:12px">
+          <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:6px">⚡ Próximo paso para completar este guion:</div>
+          <div style="font-size:13px;color:var(--muted)">Confirma el <strong style="color:var(--text)">tema</strong>, el <strong style="color:var(--text)">escenario</strong> y las <strong style="color:var(--text)">muletillas</strong> de Leo y Buba. El guion completo se generará al instante.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SECTION: MÓDULO E — ACTIVOS VISUALES        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="section" id="sec-visuales">
+      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div>
+          <h1>🎨 Módulo E — Activos Visuales</h1>
+          <p>Librería de fondos · Prompts IA · Reciclaje · Checklist Croma Key</p>
+        </div>
+        <button class="btn btn-amber" onclick="openModal('modal-fondo')">+ Registrar Fondo</button>
+      </div>
+
+      <!-- VISUAL STANDARD STRIP -->
+      <div class="card fade-in" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(62,207,178,0.05),rgba(123,94,167,0.05));border-color:rgba(62,207,178,0.25)">
+        <div class="card-title"><span>🎬</span> Estándar Visual Canónico MST</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+          <div style="background:var(--surface2);border-radius:12px;padding:14px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px">Técnica</div>
+            <div style="font-size:13px;font-weight:600">Croma Key 🟩</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Pantalla Verde</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:12px;padding:14px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px">Estética IA</div>
+            <div style="font-size:13px;font-weight:600">3D Soft Illustration</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Pixar / Disney moderno</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:12px;padding:14px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px">Ratio</div>
+            <div style="font-size:13px;font-weight:600">16:9 · 1920×1080</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">+ 9:16 para Shorts</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:12px;padding:14px">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px">Profundidad</div>
+            <div style="font-size:13px;font-weight:600">DOF Sutil</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Fondo con blur ligero</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS ROW -->
+      <div class="grid-4" style="margin-bottom:20px">
+        <div class="stat-card teal fade-in">
+          <div class="stat-icon">🖼️</div>
+          <div class="stat-value">0</div>
+          <div class="stat-label">Fondos Listos</div>
+          <div class="stat-delta" style="color:var(--muted)">de 8 planificados T1</div>
+        </div>
+        <div class="stat-card amber fade-in delay-1">
+          <div class="stat-icon">🆕</div>
+          <div class="stat-value">1</div>
+          <div class="stat-label">Por Generar</div>
+          <div class="stat-delta" style="color:var(--accent)">EP001 — Oasis Tropical</div>
+        </div>
+        <div class="stat-card purple fade-in delay-2">
+          <div class="stat-icon">♻️</div>
+          <div class="stat-value">0</div>
+          <div class="stat-label">Fondos Reciclados</div>
+          <div class="stat-delta" style="color:var(--muted)">Ahorro de producción</div>
+        </div>
+        <div class="stat-card red fade-in delay-3">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-value">5<span style="font-size:16px">min</span></div>
+          <div class="stat-label">Montaje con Reciclaje</div>
+          <div class="stat-delta" style="color:var(--accent4)">vs ~45 min fondo nuevo</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- LIBRERÍA DE FONDOS -->
+        <div class="card fade-in">
+          <div class="card-title"><span>🗂️</span> Librería de Fondos</div>
+
+          <!-- BG-001 — EN PRODUCCIÓN -->
+          <div style="background:var(--surface2);border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid rgba(245,166,35,0.25)">
+            <div style="display:flex;align-items:flex-start;gap:12px">
+              <!-- Preview placeholder -->
+              <div style="width:80px;height:48px;border-radius:8px;background:linear-gradient(135deg,#2d6a4f,#40916c,#74c69d);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px">🌴</div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                  <span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--accent)">BG-001</span>
+                  <span class="badge badge-amber" style="font-size:10px">🆕 Por Generar</span>
+                </div>
+                <div style="font-size:13px;font-weight:600">Oasis_Tropical_Dia.jpg</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:2px">Oasis tropical con palmeras · ☀️ Día Soleado</div>
+                <div style="font-size:11px;color:var(--muted)">Usado en: EP001</div>
+              </div>
+              <button class="btn btn-ghost" style="font-size:11px;padding:6px 10px;flex-shrink:0" onclick="openModal('modal-prompt-001')">Ver Prompt</button>
+            </div>
+          </div>
+
+          <!-- EMPTY SLOTS -->
+          <div id="bg-slots">
+            <div style="opacity:0.4;font-size:12px;color:var(--muted);padding:8px 0;border-top:1px solid var(--border)">
+              BG-002 · Sabana Atardecer — <em>Planificado</em><br>
+              BG-003 · Selva Tropical Mañana — <em>Planificado</em><br>
+              BG-004 · Noche Estrellada — <em>Planificado</em><br>
+              BG-005 · Interior Cabaña — <em>Planificado</em><br>
+              BG-006 · Playa Día — <em>Planificado</em><br>
+              BG-007 · Cueva Mágica — <em>Planificado</em><br>
+              BG-008 · Pradera Florida — <em>Planificado</em>
+            </div>
+          </div>
+
+          <div style="margin-top:14px">
+            <button class="btn btn-ghost" style="font-size:12px;width:100%" onclick="openModal('modal-fondo')">+ Registrar nuevo fondo</button>
+          </div>
+        </div>
+
+        <!-- HORA DEL DÍA + ILUMINACIÓN -->
+        <div class="card fade-in delay-1">
+          <div class="card-title"><span>💡</span> Guía de Iluminación por Hora del Día</div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Cada escena del guion especifica una hora. Ilumina el croma según esta tabla para que el títere combine con el fondo generado.</p>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="background:linear-gradient(90deg,rgba(255,220,100,0.12),transparent);border-radius:10px;padding:12px 14px;border-left:3px solid #FFD970">
+              <div style="font-size:12px;font-weight:600;color:#FFD970">☀️ Mañana Soleada</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">5500K · Luz a 45° desde izquierda · Suave y cálida</div>
+            </div>
+            <div style="background:linear-gradient(90deg,rgba(255,255,255,0.06),transparent);border-radius:10px;padding:12px 14px;border-left:3px solid #E8EAF0">
+              <div style="font-size:12px;font-weight:600;color:#E8EAF0">🌤️ Mediodía</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">6500K · Luz cenital difusa · Sin sombras duras</div>
+            </div>
+            <div style="background:linear-gradient(90deg,rgba(255,140,50,0.12),transparent);border-radius:10px;padding:12px 14px;border-left:3px solid #FF8C32">
+              <div style="font-size:12px;font-weight:600;color:#FF8C32">🌅 Atardecer Naranja</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">3200K · Luz lateral naranja + contraluz suave</div>
+            </div>
+            <div style="background:linear-gradient(90deg,rgba(100,150,255,0.12),transparent);border-radius:10px;padding:12px 14px;border-left:3px solid #6496FF">
+              <div style="font-size:12px;font-weight:600;color:#6496FF">🌙 Noche Estrellada</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">4000K frío · Luz azulada + punto cálido de relleno</div>
+            </div>
+            <div style="background:linear-gradient(90deg,rgba(255,150,80,0.10),transparent);border-radius:10px;padding:12px 14px;border-left:3px solid #FF9650">
+              <div style="font-size:12px;font-weight:600;color:#FF9650">🏠 Interior Cálido</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px">2800K · Luz naranja suave desde lateral o abajo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROMPT GENERATOR PANEL -->
+      <div class="card fade-in" style="margin-top:4px">
+        <div class="card-title"><span>✨</span> Generador de Prompts IA — Fórmula Canónica MST</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Todos los prompts siguen la fórmula estándar MST para garantizar consistencia visual entre episodios.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <!-- FORMULA -->
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent3);margin-bottom:8px">✅ Palabras clave SIEMPRE incluir</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span style="font-size:11px;padding:3px 9px;background:rgba(62,207,178,0.1);border:1px solid rgba(62,207,178,0.25);border-radius:20px;color:var(--accent3)">soft 3D illustration</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(62,207,178,0.1);border:1px solid rgba(62,207,178,0.25);border-radius:20px;color:var(--accent3)">Pixar style</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(62,207,178,0.1);border:1px solid rgba(62,207,178,0.25);border-radius:20px;color:var(--accent3)">rounded shapes</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(62,207,178,0.1);border:1px solid rgba(62,207,178,0.25);border-radius:20px;color:var(--accent3)">vibrant colors</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(62,207,178,0.1);border:1px solid rgba(62,207,178,0.25);border-radius:20px;color:var(--accent3)">depth of field</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(62,207,178,0.1);border:1px solid rgba(62,207,178,0.25);border-radius:20px;color:var(--accent3)">smooth textures</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(62,207,178,0.1);border:1px solid rgba(62,207,178,0.25);border-radius:20px;color:var(--accent3)">puppet-friendly</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(62,207,178,0.1);border:1px solid rgba(62,207,178,0.25);border-radius:20px;color:var(--accent3)">children's TV background</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent4);margin-bottom:8px">🚫 Palabras clave NUNCA incluir</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <span style="font-size:11px;padding:3px 9px;background:rgba(232,93,117,0.1);border:1px solid rgba(232,93,117,0.25);border-radius:20px;color:var(--accent4)">realistic</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(232,93,117,0.1);border:1px solid rgba(232,93,117,0.25);border-radius:20px;color:var(--accent4)">photorealistic</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(232,93,117,0.1);border:1px solid rgba(232,93,117,0.25);border-radius:20px;color:var(--accent4)">dark / gritty</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(232,93,117,0.1);border:1px solid rgba(232,93,117,0.25);border-radius:20px;color:var(--accent4)">sharp edges</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(232,93,117,0.1);border:1px solid rgba(232,93,117,0.25);border-radius:20px;color:var(--accent4)">cartoon outlines</span>
+              <span style="font-size:11px;padding:3px 9px;background:rgba(232,93,117,0.1);border:1px solid rgba(232,93,117,0.25);border-radius:20px;color:var(--accent4)">anime</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROMPT EXAMPLES -->
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:10px">Prompts base listos para copiar</div>
+        <div style="display:flex;flex-direction:column;gap:8px" id="prompt-list">
+
+          <div class="script-block" style="cursor:pointer" onclick="copyPrompt(this)" title="Clic para copiar">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-size:11px;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:0.06em">🌴 Oasis Tropical — Día Soleado</div>
+              <span style="font-size:10px;color:var(--muted)">📋 Clic para copiar</span>
+            </div>
+            <div class="script-line" style="font-size:12px;line-height:1.7;font-family:monospace;color:#A5B4FC" data-prompt="A vibrant soft 3D Disney-style tropical oasis with palm trees and a small crystal-clear pond, colorful tropical birds perched nearby, sunny day lighting with warm golden rays, rounded smooth shapes, no hard outlines, depth of field blur on background elements, children's animated show background plate, puppet composition space in foreground --ar 16:9 --style raw --q 2">A vibrant soft 3D Disney-style tropical oasis with palm trees and a small crystal-clear pond, colorful tropical birds perched nearby, sunny day lighting with warm golden rays, rounded smooth shapes, no hard outlines, depth of field blur on background elements, children's animated show background plate, puppet composition space in foreground --ar 16:9 --style raw --q 2</div>
+          </div>
+
+          <div class="script-block" style="cursor:pointer" onclick="copyPrompt(this)" title="Clic para copiar">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.06em">🏜️ Sabana Africana — Atardecer</div>
+              <span style="font-size:10px;color:var(--muted)">📋 Clic para copiar</span>
+            </div>
+            <div class="script-line" style="font-size:12px;line-height:1.7;font-family:monospace;color:#A5B4FC" data-prompt="A warm African savanna at golden hour, gentle rolling hills, scattered acacia trees with rounded silhouettes, a glowing orange and pink sunset sky, soft 3D illustration style, Pixar Disney modern aesthetic, vibrant warm tones, smooth textures, depth of field with blurred distant horizon, children's TV show background, clear foreground space for puppet --ar 16:9 --style raw --q 2">A warm African savanna at golden hour, gentle rolling hills, scattered acacia trees with rounded silhouettes, a glowing orange and pink sunset sky, soft 3D illustration style, Pixar Disney modern aesthetic, vibrant warm tones, smooth textures, depth of field with blurred distant horizon, children's TV show background, clear foreground space for puppet --ar 16:9 --style raw --q 2</div>
+          </div>
+
+          <div class="script-block" style="cursor:pointer" onclick="copyPrompt(this)" title="Clic para copiar">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-size:11px;font-weight:700;color:#A78BFA;text-transform:uppercase;letter-spacing:0.06em">🌙 Noche Estrellada — Exterior</div>
+              <span style="font-size:10px;color:var(--muted)">📋 Clic para copiar</span>
+            </div>
+            <div class="script-line" style="font-size:12px;line-height:1.7;font-family:monospace;color:#A5B4FC" data-prompt="A magical night sky over a gentle meadow, thousands of soft glowing stars, a large friendly full moon with a gentle glow, fireflies with warm light dots, soft blue and purple tones, 3D illustration style, Pixar Disney modern, rounded shapes, no hard outlines, depth of field with blurred distant treeline, children's TV background, clear center foreground space --ar 16:9 --style raw --q 2">A magical night sky over a gentle meadow, thousands of soft glowing stars, a large friendly full moon with a gentle glow, fireflies with warm light dots, soft blue and purple tones, 3D illustration style, Pixar Disney modern, rounded shapes, no hard outlines, depth of field with blurred distant treeline, children's TV background, clear center foreground space --ar 16:9 --style raw --q 2</div>
+          </div>
+
+          <div class="script-block" style="cursor:pointer" onclick="copyPrompt(this)" title="Clic para copiar">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-size:11px;font-weight:700;color:#FB923C;text-transform:uppercase;letter-spacing:0.06em">🏠 Interior Cabaña — Noche Cálida</div>
+              <span style="font-size:10px;color:var(--muted)">📋 Clic para copiar</span>
+            </div>
+            <div class="script-line" style="font-size:12px;line-height:1.7;font-family:monospace;color:#A5B4FC" data-prompt="A cozy warm interior of a rounded treehouse or woodland cottage, wooden shelves with colorful books and plants, soft warm lamplight, rounded furniture, 3D soft illustration style, Pixar Disney modern aesthetic, warm orange-amber tones, smooth textures, depth of field, children's TV show background, puppet-friendly clear foreground --ar 16:9 --style raw --q 2">A cozy warm interior of a rounded treehouse or woodland cottage, wooden shelves with colorful books and plants, soft warm lamplight, rounded furniture, 3D soft illustration style, Pixar Disney modern aesthetic, warm orange-amber tones, smooth textures, depth of field, children's TV show background, puppet-friendly clear foreground --ar 16:9 --style raw --q 2</div>
+          </div>
+
+        </div>
+
+        <div id="copy-toast" style="display:none;margin-top:10px;padding:10px 14px;background:rgba(62,207,178,0.12);border:1px solid rgba(62,207,178,0.3);border-radius:10px;font-size:13px;color:var(--accent3)">
+          ✅ Prompt copiado al portapapeles — pégalo en Midjourney o DALL-E 3
+        </div>
+      </div>
+
+      <!-- CROMA CHECKLIST -->
+      <div class="card fade-in" style="margin-top:20px">
+        <div class="card-title"><span>🟩</span> Checklist Técnico de Croma Key — Antes de Grabar</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Verifica cada punto antes de encender la cámara. Un croma perfecto = montaje en 5 minutos.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent);margin-bottom:10px">🎬 Configuración del Set</div>
+            <div id="checklist-set" style="display:flex;flex-direction:column;gap:8px">
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" style="margin-top:2px;accent-color:var(--accent3)">
+                <span><strong>Tela verde trasera</strong> — bien tensada, sin arrugas, iluminada plana y uniforme</span>
+              </label>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" style="margin-top:2px;accent-color:var(--accent3)">
+                <span><strong>Mesa verde</strong> — superficie donde posan los títeres también cubierta de verde</span>
+              </label>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" style="margin-top:2px;accent-color:var(--accent3)">
+                <span><strong>Separación mínima 1 metro</strong> — títeres alejados de la tela (evita spill verde en el pelaje)</span>
+              </label>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" style="margin-top:2px;accent-color:var(--accent3)">
+                <span><strong>Sin verde en títeres</strong> — ningún accesorio ni ojo en color verde o verde-amarillo</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent3);margin-bottom:10px">💡 Iluminación + Cámara + Audio</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" style="margin-top:2px;accent-color:var(--accent3)">
+                <span><strong>Tela iluminada uniformemente</strong> — sin sombras, sin hot spots</span>
+              </label>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" style="margin-top:2px;accent-color:var(--accent3)">
+                <span><strong>Luz de rodaje según hora del guion</strong> — ver tabla de iluminación</span>
+              </label>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" style="margin-top:2px;accent-color:var(--accent3)">
+                <span><strong>Resolución mínima 1080p</strong> — ISO lo más bajo posible</span>
+              </label>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+                <input type="checkbox" style="margin-top:2px;accent-color:var(--accent3)">
+                <span><strong>Audio ElevenLabs a todo volumen</strong> — animar títere al ritmo de la voz</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRUCO PRO -->
+        <div style="margin-top:16px;padding:14px 16px;background:rgba(245,166,35,0.07);border:1px solid rgba(245,166,35,0.25);border-radius:12px;display:flex;gap:12px;align-items:flex-start">
+          <span style="font-size:22px;flex-shrink:0">⭐</span>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:4px">Truco Pro — Animación con Audio ElevenLabs</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.6">Pon el audio a todo volumen en un altavoz. Mueve el títere al <strong style="color:var(--text)">ritmo de la voz</strong>. No intentes vocalizar cada letra — solo abre y cierra la boca con el <strong style="color:var(--text)">pulso natural de las palabras</strong>. El resultado parece doblaje profesional.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:10px">
+          <button class="btn btn-ghost" style="font-size:12px" onclick="resetChecklist()">↺ Reiniciar checklist</button>
+          <span id="checklist-progress" style="font-size:12px;color:var(--muted);align-self:center">0 / 8 completados</span>
+        </div>
+      </div>
+
+      <!-- PRODUCTION FLOW -->
+      <div class="card fade-in" style="margin-top:20px">
+        <div class="card-title"><span>🔄</span> Flujo de Producción Completo — Croma + ElevenLabs</div>
+        <div style="display:flex;flex-direction:column;gap:0">
+
+          <div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;flex-shrink:0">1</div>
+            <div>
+              <div style="font-size:14px;font-weight:600">Guion Técnico <span style="color:var(--muted);font-weight:400;font-size:12px">— Claude</span></div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">Guion con escenas etiquetadas (Oasis, Día Soleado) + bloque visual con prompt de fondo asignado</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--accent2);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;flex-shrink:0">2</div>
+            <div>
+              <div style="font-size:14px;font-weight:600">Audio Maestro <span style="color:var(--muted);font-weight:400;font-size:12px">— ElevenLabs</span></div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">Generar diálogos de todos los personajes en ES + 4 idiomas. Exportar archivos de audio por personaje y por idioma.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--accent3);color:#000;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;flex-shrink:0">3</div>
+            <div>
+              <div style="font-size:14px;font-weight:600">Generación de Fondo <span style="color:var(--muted);font-weight:400;font-size:12px">— Midjourney / DALL-E 3</span></div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">Usar prompt del guion. Guardar como <code style="background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:11px">Nombre_Escenario_Hora.jpg</code> y registrar en la Librería de Fondos.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border)">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--accent4);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;flex-shrink:0">4</div>
+            <div>
+              <div style="font-size:14px;font-weight:600">Rodaje <span style="color:var(--muted);font-weight:400;font-size:12px">— Croma Key + Títeres</span></div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">Verificar checklist de croma · Iluminar según hora del día · Animar al ritmo del audio ElevenLabs</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;padding:16px 0">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;flex-shrink:0">5</div>
+            <div>
+              <div style="font-size:14px;font-weight:600">Montaje <span style="color:var(--muted);font-weight:400;font-size:12px">— CapCut / Premiere / DaVinci Resolve</span></div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">Croma key → eliminar verde → colocar fondo IA → sincronizar audio → subtítulos → exportar 16:9 (YouTube) + 9:16 (Shorts)</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+    <!-- FIN MÓDULO E -->
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- MODALS                                      -->
+<!-- ═══════════════════════════════════════════ -->
+
+<!-- MODAL: NUEVO FONDO -->
+<div class="modal-overlay" id="modal-fondo">
+  <div class="modal">
+    <div class="modal-title">
+      🖼️ Registrar Nuevo Fondo
+      <button class="modal-close" onclick="closeModal('modal-fondo')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ID del Fondo</label>
+      <input class="form-input" type="text" placeholder="BG-002" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre de Archivo</label>
+      <input class="form-input" type="text" placeholder="Sabana_Atardecer.jpg" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Escenario / Descripción</label>
+      <input class="form-input" type="text" placeholder="Sabana africana con acacias al atardecer" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Hora del Día</label>
+      <select class="form-input">
+        <option>☀️ Mañana Soleada</option>
+        <option>🌤️ Mediodía</option>
+        <option selected>🌅 Atardecer Naranja</option>
+        <option>🌙 Noche Estrellada</option>
+        <option>🏠 Interior Cálido</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Usado en Episodio(s)</label>
+      <input class="form-input" type="text" placeholder="EP002, EP005..." />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Estado</label>
+      <select class="form-input">
+        <option>🆕 Por generar</option>
+        <option>🟡 En generación</option>
+        <option>✅ Listo</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-fondo')">Cancelar</button>
+      <button class="btn btn-amber" onclick="closeModal('modal-fondo')">Registrar Fondo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PROMPT BG-001 -->
+<div class="modal-overlay" id="modal-prompt-001">
+  <div class="modal" style="width:600px">
+    <div class="modal-title">
+      🖼️ Prompt — BG-001 Oasis Tropical Día
+      <button class="modal-close" onclick="closeModal('modal-prompt-001')">×</button>
+    </div>
+    <div style="background:var(--surface2);border-radius:12px;padding:16px;margin-bottom:16px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent3);margin-bottom:8px">Prompt Midjourney / DALL-E 3</div>
+      <div style="font-family:monospace;font-size:12px;line-height:1.8;color:#A5B4FC" id="prompt-001-text">A vibrant soft 3D Disney-style tropical oasis with palm trees and a small crystal-clear pond, colorful tropical birds perched nearby, sunny day lighting with warm golden rays, rounded smooth shapes, no hard outlines, depth of field blur on background elements, children's animated show background plate, puppet composition space in foreground --ar 16:9 --style raw --q 2</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:var(--surface2);border-radius:10px;padding:12px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:4px">Paleta de referencia</div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <div style="width:20px;height:20px;border-radius:4px;background:#2d8e5a" title="Verde tropical"></div>
+          <div style="width:20px;height:20px;border-radius:4px;background:#40b87c" title="Verde claro"></div>
+          <div style="width:20px;height:20px;border-radius:4px;background:#5ec8f0" title="Azul cielo"></div>
+          <div style="width:20px;height:20px;border-radius:4px;background:#ffe066" title="Amarillo sol"></div>
+          <div style="width:20px;height:20px;border-radius:4px;background:#f5a623" title="Naranja cálido"></div>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:12px">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:4px">Iluminación de rodaje</div>
+        <div style="font-size:12px;color:var(--text);margin-top:4px">☀️ 5500K · Luz a 45° izquierda · Suave y cálida</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('modal-prompt-001')">Cerrar</button>
+      <button class="btn btn-amber" onclick="copyText(document.getElementById('prompt-001-text').innerText); closeModal('modal-prompt-001')">📋 Copiar Prompt</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-ep">
+  <div class="modal">
+    <div class="modal-title">
+      📋 Nuevo Episodio
+      <button class="modal-close" onclick="closeModal('modal-ep')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Número de Episodio</label>
+      <input class="form-input" type="text" placeholder="EP002" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Título (puede ser provisional)</label>
+      <input class="form-input" type="text" placeholder="Ej: El día que Leo perdió su melena" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Personajes Protagonistas</label>
+      <input class="form-input" type="text" placeholder="Leo, Buba..." />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Escenografía</label>
+      <input class="form-input" type="text" placeholder="Ej: La sabana · El lago · El bosque" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Enseñanza Moral del Episodio</label>
+      <input class="form-input" type="text" placeholder="Ej: La amistad verdadera no necesita palabras" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Duración Estimada</label>
+      <input class="form-input" type="text" placeholder="~3 min" />
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-ep')">Cancelar</button>
+      <button class="btn btn-amber" onclick="closeModal('modal-ep')">Crear Episodio</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVO PERSONAJE -->
+<div class="modal-overlay" id="modal-char">
+  <div class="modal">
+    <div class="modal-title">
+      🎭 Nuevo Personaje
+      <button class="modal-close" onclick="closeModal('modal-char')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="grid-column:span 1">
+        <label class="form-label">Emoji</label>
+        <input class="form-input" type="text" placeholder="🦊" />
+      </div>
+      <div class="form-group" style="grid-column:span 2">
+        <label class="form-label">Nombre</label>
+        <input class="form-input" type="text" placeholder="Mambo el Mono" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Arquetipo Psicológico</label>
+      <input class="form-input" type="text" placeholder="Ej: El Bromista / El Creativo" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Muletilla Característica</label>
+      <input class="form-input" type="text" placeholder="Ej: ¡Esto sí que es un lío!" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Enseñanza Moral Única</label>
+      <input class="form-input" type="text" placeholder="Ej: La creatividad resuelve todo" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tono de Voz</label>
+      <input class="form-input" type="text" placeholder="Ej: Agudo, rápido, juguetón" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Conoce a (personajes)</label>
+      <input class="form-input" type="text" placeholder="Ninguno aún" />
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-char')">Cancelar</button>
+      <button class="btn btn-amber" onclick="closeModal('modal-char')">Registrar Personaje</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: REGISTRAR EVENTO -->
+<div class="modal-overlay" id="modal-event">
+  <div class="modal">
+    <div class="modal-title">
+      🧠 Registrar Evento Canónico
+      <button class="modal-close" onclick="closeModal('modal-event')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Episodio</label>
+      <input class="form-input" type="text" placeholder="EP001" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Personaje(s) Involucrado(s)</label>
+      <input class="form-input" type="text" placeholder="Leo, Buba" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción del Evento</label>
+      <textarea class="form-input" rows="3" placeholder="Ej: Leo descubre que Buba tiene miedo a las tormentas..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Aprendizaje / Consecuencia futura</label>
+      <input class="form-input" type="text" placeholder="Ej: Leo deberá recordar esto en EP005" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo de Evento</label>
+      <select class="form-input">
+        <option>Conocimiento nuevo</option>
+        <option>Relación creada</option>
+        <option>Aprendizaje moral</option>
+        <option>Hecho del mundo</option>
+        <option>Objeto importante</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-event')">Cancelar</button>
+      <button class="btn btn-amber" onclick="closeModal('modal-event')">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: VOICE LEO -->
+<div class="modal-overlay" id="modal-voice-leo">
+  <div class="modal">
+    <div class="modal-title">
+      🎙️ Asignar Voz — Leo el León
+      <button class="modal-close" onclick="closeModal('modal-voice-leo')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre de Voz ElevenLabs</label>
+      <input class="form-input" type="text" placeholder="Ej: Marcus" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Voice ID ElevenLabs</label>
+      <input class="form-input" type="text" placeholder="Ej: abc123xyz..." />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Stability (0–1)</label>
+        <input class="form-input" type="number" step="0.05" min="0" max="1" placeholder="0.65" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Clarity (0–1)</label>
+        <input class="form-input" type="number" step="0.05" min="0" max="1" placeholder="0.80" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Style (0–1)</label>
+        <input class="form-input" type="number" step="0.05" min="0" max="1" placeholder="0.45" />
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-voice-leo')">Cancelar</button>
+      <button class="btn btn-amber" onclick="closeModal('modal-voice-leo')">Guardar Voz</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // NAVIGATION
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    event.currentTarget.classList.add('active');
+    // Reset char detail if leaving personajes
+    if (id !== 'personajes') closeCharDetail();
+  }
+
+  // MODALS
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  // Close on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  });
+
+  // CHAR DETAIL
+  function openCharDetail(id) {
+    document.getElementById('char-list-view').style.display = 'none';
+    document.querySelectorAll('.char-detail').forEach(d => d.classList.remove('open'));
+    document.getElementById('detail-' + id).classList.add('open');
+  }
+  function closeCharDetail() {
+    document.getElementById('char-list-view').style.display = '';
+    document.querySelectorAll('.char-detail').forEach(d => d.classList.remove('open'));
+  }
+
+  // TABS
+  function switchTab(btn, contentId) {
+    const parentDetail = btn.closest('.char-detail');
+    parentDetail.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    parentDetail.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(contentId).classList.add('active');
+  }
+
+  // COPY PROMPT
+  function copyPrompt(el) {
+    const text = el.querySelector('[data-prompt]').getAttribute('data-prompt');
+    copyText(text);
+  }
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      const toast = document.getElementById('copy-toast');
+      if (toast) { toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 3000); }
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      const toast = document.getElementById('copy-toast');
+      if (toast) { toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 3000); }
+    });
+  }
+
+  // CHECKLIST COUNTER
+  document.addEventListener('change', function(e) {
+    if (e.target.type === 'checkbox') {
+      const all = document.querySelectorAll('#sec-visuales input[type=checkbox]');
+      const checked = document.querySelectorAll('#sec-visuales input[type=checkbox]:checked');
+      const prog = document.getElementById('checklist-progress');
+      if (prog) prog.textContent = checked.length + ' / ' + all.length + ' completados';
+      if (checked.length === all.length && all.length > 0) {
+        prog.style.color = 'var(--accent3)';
+        prog.textContent = '✅ ' + checked.length + ' / ' + all.length + ' — ¡Set listo para grabar!';
+      } else {
+        prog.style.color = 'var(--muted)';
+      }
+    }
+  });
+
+  function resetChecklist() {
+    document.querySelectorAll('#sec-visuales input[type=checkbox]').forEach(c => c.checked = false);
+    const prog = document.getElementById('checklist-progress');
+    if (prog) { prog.textContent = '0 / 8 completados'; prog.style.color = 'var(--muted)'; }
+  }
+</script>
+
+</body>
+</html>
