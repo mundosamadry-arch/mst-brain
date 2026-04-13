@@ -1086,39 +1086,34 @@ function openCharModal(id) {
   const card = document.querySelector(`[onclick="openCharModal(${id})"]`);
   if (!card) return;
   const c = JSON.parse(card.getAttribute('data-char').replace(/&#39;/g,"'"));
+  window._currentChar = c;
+  renderCharView(c);
+  openModal('modal-char-detail');
+}
+
+function renderCharView(c) {
   const archColors = {'El Héroe Entusiasta':'var(--gold)','El Amigo Leal / Corazón Gigante':'var(--teal)','El Bromista Ingenioso':'var(--violet)'};
   const col = archColors[c.arquetipo] || 'var(--gold)';
   const movs = (c.movimientos||[]).map(m=>`<span style="font-size:11px;padding:3px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--muted2);">[${m}]</span>`).join('');
   document.getElementById('char-modal-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border);">
       <div style="font-size:56px;line-height:1;">${c.emoji}</div>
-      <div>
+      <div style="flex:1;">
         <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;">${c.nombre}</div>
         <div style="font-size:13px;color:var(--muted2);margin-top:3px;">${c.arquetipo||'—'}</div>
         <span style="font-size:11px;color:${col};background:${col}18;padding:2px 9px;border-radius:20px;display:inline-block;margin-top:5px;border:1px solid ${col}30;">${c.codigo}</span>
       </div>
+      <button class="btn btn-ghost btn-sm" onclick="renderCharEdit(window._currentChar)" style="flex-shrink:0;">✏️ Editar</button>
     </div>
-    ${c.muletilla ? `<div style="background:${col}08;border:1px solid ${col}25;border-radius:var(--r-sm);padding:14px;font-size:16px;font-style:italic;text-align:center;color:${col};margin-bottom:16px;">"${c.muletilla}"</div>` : ''}
+    ${c.muletilla ? `<div style="background:${col}08;border:1px solid ${col}25;border-radius:var(--r-sm);padding:14px;font-size:16px;font-style:italic;text-align:center;color:${col};margin-bottom:16px;">"${c.muletilla}"</div>` : `<div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;text-align:center;font-size:13px;color:var(--muted2);margin-bottom:16px;font-style:italic;">Sin muletilla definida</div>`}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Enseñanza moral</div>
-        <div style="font-size:13px;line-height:1.5;">${c.ensenanza_moral||'—'}</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Tono de voz</div>
-        <div style="font-size:13px;line-height:1.5;">${c.tono_voz||'—'}</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Miedos / debilidades</div>
-        <div style="font-size:13px;line-height:1.5;">${c.miedos||'—'}</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Objeto característico</div>
-        <div style="font-size:13px;line-height:1.5;">${c.objeto_caract||'—'}</div>
-      </div>
+      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Enseñanza moral</div><div style="font-size:13px;line-height:1.5;">${c.ensenanza_moral||'—'}</div></div>
+      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Tono de voz</div><div style="font-size:13px;line-height:1.5;">${c.tono_voz||'—'}</div></div>
+      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Miedos / debilidades</div><div style="font-size:13px;line-height:1.5;">${c.miedos||'—'}</div></div>
+      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Objeto característico</div><div style="font-size:13px;line-height:1.5;">${c.objeto_caract||'—'}</div></div>
     </div>
-    ${movs ? `<div style="margin-bottom:14px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;">Movimientos</div><div style="display:flex;flex-wrap:wrap;gap:5px;">${movs}</div></div>` : ''}
-    <div style="margin-bottom:14px;">
+    ${movs ? `<div style="margin-bottom:14px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;">Movimientos</div><div style="display:flex;flex-wrap:wrap;gap:5px;">${movs}</div></div>` : `<div style="margin-bottom:14px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;">Movimientos</div><div style="font-size:13px;color:var(--muted2);">Sin movimientos definidos</div></div>`}
+    <div style="margin-bottom:6px;">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;">Voz ElevenLabs</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
         <div style="background:var(--surface2);border-radius:var(--r-sm);padding:10px;text-align:center;"><div style="font-size:10px;color:var(--muted);">Nombre</div><div style="font-size:12px;margin-top:3px;">${c.voz_nombre||'—'}</div></div>
@@ -1127,7 +1122,90 @@ function openCharModal(id) {
         <div style="background:var(--surface2);border-radius:var(--r-sm);padding:10px;text-align:center;"><div style="font-size:10px;color:var(--muted);">Style</div><div style="font-size:12px;margin-top:3px;">${c.voz_style??'—'}</div></div>
       </div>
     </div>`;
-  openModal('modal-char-detail');
+}
+
+function renderCharEdit(c) {
+  const movStr = (c.movimientos||[]).join(', ');
+  document.getElementById('char-modal-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+      <div style="font-size:44px;">${c.emoji}</div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;">${c.nombre}</div>
+        <div style="font-size:12px;color:var(--muted2);">${c.codigo} — modo edición</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:80px 1fr;gap:10px;margin-bottom:12px;">
+      <div><label class="fl">Emoji</label><input class="fi" id="e-emoji" value="${c.emoji||''}"></div>
+      <div><label class="fl">Nombre</label><input class="fi" id="e-nombre" value="${c.nombre||''}"></div>
+    </div>
+    <div class="fg" style="margin-bottom:12px;"><label class="fl">Arquetipo</label><input class="fi" id="e-arquetipo" value="${c.arquetipo||''}"></div>
+    <div class="fg" style="margin-bottom:12px;"><label class="fl">Muletilla</label><input class="fi" id="e-muletilla" value="${c.muletilla||''}" placeholder="¡Frase característica!"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div><label class="fl">Enseñanza moral</label><input class="fi" id="e-moral" value="${c.ensenanza_moral||''}"></div>
+      <div><label class="fl">Tono de voz</label><input class="fi" id="e-tono" value="${c.tono_voz||''}"></div>
+      <div><label class="fl">Miedos / debilidades</label><input class="fi" id="e-miedos" value="${c.miedos||''}"></div>
+      <div><label class="fl">Objeto característico</label><input class="fi" id="e-objeto" value="${c.objeto_caract||''}"></div>
+    </div>
+    <div class="fg" style="margin-bottom:12px;">
+      <label class="fl">Movimientos (separados por coma)</label>
+      <input class="fi" id="e-movimientos" value="${movStr}" placeholder="abre la boca, sacude la melena, salta...">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div><label class="fl">Voz ElevenLabs (nombre)</label><input class="fi" id="e-voz-nombre" value="${c.voz_nombre||''}"></div>
+      <div><label class="fl">Voice ID</label><input class="fi" id="e-voz-id" value="${c.voz_id||''}"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div><label class="fl">Stability</label><input class="fi" id="e-stab" type="number" step=".05" min="0" max="1" value="${c.voz_stability||''}"></div>
+      <div><label class="fl">Clarity</label><input class="fi" id="e-clar" type="number" step=".05" min="0" max="1" value="${c.voz_clarity||''}"></div>
+      <div><label class="fl">Style</label><input class="fi" id="e-styl" type="number" step=".05" min="0" max="1" value="${c.voz_style||''}"></div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-gold" onclick="saveCharEdit(${c.id})">💾 Guardar cambios</button>
+      <button class="btn btn-ghost" onclick="renderCharView(window._currentChar)">Cancelar</button>
+    </div>
+    <div id="edit-msg" style="font-size:12px;margin-top:10px;min-height:16px;"></div>`;
+}
+
+async function saveCharEdit(id) {
+  if (!sb) return;
+  const btn = document.querySelector(`[onclick="saveCharEdit(${id})"]`);
+  const msg = document.getElementById('edit-msg');
+  if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
+
+  const movsRaw = document.getElementById('e-movimientos').value;
+  const movs = movsRaw.split(',').map(m => m.trim()).filter(Boolean);
+
+  const payload = {
+    emoji:          document.getElementById('e-emoji').value.trim(),
+    nombre:         document.getElementById('e-nombre').value.trim(),
+    arquetipo:      document.getElementById('e-arquetipo').value.trim(),
+    muletilla:      document.getElementById('e-muletilla').value.trim(),
+    ensenanza_moral:document.getElementById('e-moral').value.trim(),
+    tono_voz:       document.getElementById('e-tono').value.trim(),
+    miedos:         document.getElementById('e-miedos').value.trim(),
+    objeto_caract:  document.getElementById('e-objeto').value.trim(),
+    movimientos:    movs,
+    voz_nombre:     document.getElementById('e-voz-nombre').value.trim(),
+    voz_id:         document.getElementById('e-voz-id').value.trim(),
+    voz_stability:  parseFloat(document.getElementById('e-stab').value) || null,
+    voz_clarity:    parseFloat(document.getElementById('e-clar').value) || null,
+    voz_style:      parseFloat(document.getElementById('e-styl').value) || null,
+    actualizado_en: new Date().toISOString(),
+  };
+
+  const { error } = await sb.from('personajes').update(payload).eq('id', id);
+  if (error) {
+    msg.style.color = 'var(--rose)'; msg.textContent = '❌ Error: ' + error.message;
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar cambios'; }
+    return;
+  }
+
+  // Update local cache
+  window._currentChar = { ...window._currentChar, ...payload };
+  msg.style.color = 'var(--teal)'; msg.textContent = '✅ Cambios guardados en Supabase';
+  showToast('✅ ' + payload.nombre + ' actualizado');
+  await loadChars();
+  setTimeout(() => renderCharView(window._currentChar), 800);
 }
 
 // ── FONDOS ───────────────────────────────────
