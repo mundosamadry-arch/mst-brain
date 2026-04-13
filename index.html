@@ -461,10 +461,8 @@
     <div class="t-sep"></div>
     <div class="t-sub">Production Brain v2.0</div>
     <div class="t-right">
-      <div class="db-bar" id="db-status">
-        <div class="db-dot" style="background:var(--muted)"></div>
-        <span style="color:var(--muted);font-size:11px">Desconectado</span>
-      </div>
+      <div class="db-bar" id="db-status"><div class="db-dot" style="background:var(--muted)"></div><span style="color:var(--muted);font-size:11px">Desconectado</span></div>
+      <a href="https://mundosamadry.es/mst/agente-personajes.html" target="_blank" style="font-size:11px;color:var(--muted2);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:var(--r-sm);transition:all .18s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">🤖 Agente ↗</a>
       <span class="pill pill-gold">🎬 T1</span>
     </div>
   </div>
@@ -547,7 +545,10 @@
     <div class="section" id="sec-personajes">
       <div class="ph ph-row">
         <div><h1>🎭 Censo de Samadry</h1><p>Módulo A — 40 personajes del universo</p></div>
-        <button class="btn btn-gold" onclick="openModal('modal-char')">+ Nuevo Personaje</button>
+        <div style="display:flex;gap:10px;">
+          <a href="https://mundosamadry.es/mst/agente-personajes.html" target="_blank" class="btn btn-ghost" style="text-decoration:none;">🤖 Agente de Personajes ↗</a>
+          <button class="btn btn-gold" onclick="openModal('modal-char')">+ Nuevo Personaje</button>
+        </div>
       </div>
       <div id="chars-grid-wrap"><div class="loading-wrap"><div class="spinner"></div></div></div>
       <p id="chars-footer" style="text-align:center;color:var(--muted2);font-size:13px;margin-top:16px"></p>
