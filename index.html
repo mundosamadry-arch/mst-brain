@@ -780,6 +780,21 @@
 <!-- MODALS                                     -->
 <!-- ══════════════════════════════════════════ -->
 
+<!-- DETALLE PERSONAJE -->
+<div class="overlay" id="modal-char-detail">
+  <div class="modal" style="width:580px;">
+    <div class="modal-title">
+      🎭 Ficha del Personaje
+      <button class="modal-x" onclick="closeModal('modal-char-detail')">×</button>
+    </div>
+    <div id="char-modal-body" style="max-height:65vh;overflow-y:auto;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+      <a href="https://mundosamadry.es/mst/agente-personajes.html" target="_blank" class="btn btn-ghost" style="text-decoration:none;font-size:12px;">🤖 Agente ↗</a>
+      <button class="btn btn-ghost" onclick="closeModal('modal-char-detail')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- NUEVO EPISODIO -->
 <div class="overlay" id="modal-ep">
   <div class="modal">
@@ -1053,7 +1068,7 @@ async function loadChars() {
   const grid = document.createElement('div');
   grid.className = 'char-grid';
   grid.innerHTML = data.map(c => `
-    <div class="char-card">
+    <div class="char-card" onclick="openCharModal(${c.id})" style="cursor:pointer;" data-char='${JSON.stringify(c).replace(/'/g,"&#39;")}'>
       <span class="cc-id">${c.codigo}</span>
       <span class="cc-emoji">${c.emoji}</span>
       <div class="cc-name">${c.nombre}</div>
@@ -1065,6 +1080,54 @@ async function loadChars() {
   wrap.innerHTML = '';
   wrap.appendChild(grid);
   document.getElementById('chars-footer').textContent = `${data.length} de 40 personajes registrados — Quedan ${40-data.length} por incorporar`;
+}
+
+function openCharModal(id) {
+  const card = document.querySelector(`[onclick="openCharModal(${id})"]`);
+  if (!card) return;
+  const c = JSON.parse(card.getAttribute('data-char').replace(/&#39;/g,"'"));
+  const archColors = {'El Héroe Entusiasta':'var(--gold)','El Amigo Leal / Corazón Gigante':'var(--teal)','El Bromista Ingenioso':'var(--violet)'};
+  const col = archColors[c.arquetipo] || 'var(--gold)';
+  const movs = (c.movimientos||[]).map(m=>`<span style="font-size:11px;padding:3px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;color:var(--muted2);">[${m}]</span>`).join('');
+  document.getElementById('char-modal-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border);">
+      <div style="font-size:56px;line-height:1;">${c.emoji}</div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;">${c.nombre}</div>
+        <div style="font-size:13px;color:var(--muted2);margin-top:3px;">${c.arquetipo||'—'}</div>
+        <span style="font-size:11px;color:${col};background:${col}18;padding:2px 9px;border-radius:20px;display:inline-block;margin-top:5px;border:1px solid ${col}30;">${c.codigo}</span>
+      </div>
+    </div>
+    ${c.muletilla ? `<div style="background:${col}08;border:1px solid ${col}25;border-radius:var(--r-sm);padding:14px;font-size:16px;font-style:italic;text-align:center;color:${col};margin-bottom:16px;">"${c.muletilla}"</div>` : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Enseñanza moral</div>
+        <div style="font-size:13px;line-height:1.5;">${c.ensenanza_moral||'—'}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Tono de voz</div>
+        <div style="font-size:13px;line-height:1.5;">${c.tono_voz||'—'}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Miedos / debilidades</div>
+        <div style="font-size:13px;line-height:1.5;">${c.miedos||'—'}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--r-sm);padding:12px;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;">Objeto característico</div>
+        <div style="font-size:13px;line-height:1.5;">${c.objeto_caract||'—'}</div>
+      </div>
+    </div>
+    ${movs ? `<div style="margin-bottom:14px;"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;">Movimientos</div><div style="display:flex;flex-wrap:wrap;gap:5px;">${movs}</div></div>` : ''}
+    <div style="margin-bottom:14px;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;">Voz ElevenLabs</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+        <div style="background:var(--surface2);border-radius:var(--r-sm);padding:10px;text-align:center;"><div style="font-size:10px;color:var(--muted);">Nombre</div><div style="font-size:12px;margin-top:3px;">${c.voz_nombre||'—'}</div></div>
+        <div style="background:var(--surface2);border-radius:var(--r-sm);padding:10px;text-align:center;"><div style="font-size:10px;color:var(--muted);">Stability</div><div style="font-size:12px;margin-top:3px;">${c.voz_stability??'—'}</div></div>
+        <div style="background:var(--surface2);border-radius:var(--r-sm);padding:10px;text-align:center;"><div style="font-size:10px;color:var(--muted);">Clarity</div><div style="font-size:12px;margin-top:3px;">${c.voz_clarity??'—'}</div></div>
+        <div style="background:var(--surface2);border-radius:var(--r-sm);padding:10px;text-align:center;"><div style="font-size:10px;color:var(--muted);">Style</div><div style="font-size:12px;margin-top:3px;">${c.voz_style??'—'}</div></div>
+      </div>
+    </div>`;
+  openModal('modal-char-detail');
 }
 
 // ── FONDOS ───────────────────────────────────
