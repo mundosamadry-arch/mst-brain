@@ -462,7 +462,8 @@
     <div class="t-sub">Production Brain v2.0</div>
     <div class="t-right">
       <div class="db-bar" id="db-status"><div class="db-dot" style="background:var(--muted)"></div><span style="color:var(--muted);font-size:11px">Desconectado</span></div>
-      <a href="https://mundosamadry.es/mst/agente-personajes.html" target="_blank" style="font-size:11px;color:var(--muted2);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:var(--r-sm);transition:all .18s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">🤖 Agente ↗</a>
+      <a href="https://mundosamadry.es/mst/story-editor.html" target="_blank" style="font-size:11px;color:var(--muted2);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:var(--r-sm);transition:all .18s;" onmouseover="this.style.borderColor='var(--violet)';this.style.color='var(--violet)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">🎬 Story Editor ↗</a>
+      <a href="https://mundosamadry.es/mst/agente-personajes.html" target="_blank" style="font-size:11px;color:var(--muted2);text-decoration:none;padding:4px 10px;border:1px solid var(--border);border-radius:var(--r-sm);transition:all .18s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted2)'">🤖 Personajes ↗</a>
       <span class="pill pill-gold">🎬 T1</span>
     </div>
   </div>
@@ -618,17 +619,60 @@
     <div class="section" id="sec-guiones">
       <div class="ph ph-row">
         <div><h1>✍️ Guiones</h1><p>Visor técnico con formato ElevenLabs y acotaciones de movimiento</p></div>
-        <button class="btn btn-gold" onclick="openModal('modal-ep')">+ Nuevo Guion</button>
+        <div style="display:flex;gap:10px;">
+          <a href="https://mundosamadry.es/mst/story-editor.html" target="_blank" class="btn btn-ghost" style="text-decoration:none;">🎬 Story Editor ↗</a>
+          <button class="btn btn-gold" onclick="openModal('modal-ep')">+ Nuevo Episodio</button>
+        </div>
       </div>
+
+      <!-- FLUJO DE PRODUCCIÓN -->
+      <div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(123,94,167,.05),rgba(62,207,178,.03));border-color:rgba(123,94,167,.25);">
+        <div class="card-title"><span class="ct-icon">🔄</span>Flujo de creación de episodios</div>
+        <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 16px;flex:1;min-width:120px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(155,139,244,.15);border:1px solid rgba(155,139,244,.3);display:flex;align-items:center;justify-content:center;font-size:18px;">🎬</div>
+            <div style="font-size:12px;font-weight:600;text-align:center;">Story Editor</div>
+            <div style="font-size:11px;color:var(--muted2);text-align:center;">Casting, moral, estructura</div>
+            <a href="https://mundosamadry.es/mst/story-editor.html" target="_blank" class="btn btn-ghost" style="font-size:11px;padding:5px 10px;text-decoration:none;margin-top:4px;">Abrir ↗</a>
+          </div>
+          <div style="font-size:20px;color:var(--muted);padding:0 4px;">→</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 16px;flex:1;min-width:120px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.25);display:flex;align-items:center;justify-content:center;font-size:18px;">✍️</div>
+            <div style="font-size:12px;font-weight:600;text-align:center;">Agente de Guiones</div>
+            <div style="font-size:11px;color:var(--muted2);text-align:center;">Guion técnico completo</div>
+            <span class="pill" style="background:rgba(107,114,128,.15);color:var(--muted2);border:1px solid var(--border);font-size:10px;margin-top:4px;">Próximamente</span>
+          </div>
+          <div style="font-size:20px;color:var(--muted);padding:0 4px;">→</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 16px;flex:1;min-width:120px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(96,175,255,.12);border:1px solid rgba(96,175,255,.25);display:flex;align-items:center;justify-content:center;font-size:18px;">🎙️</div>
+            <div style="font-size:12px;font-weight:600;text-align:center;">ElevenLabs</div>
+            <div style="font-size:11px;color:var(--muted2);text-align:center;">Audio de los diálogos</div>
+          </div>
+          <div style="font-size:20px;color:var(--muted);padding:0 4px;">→</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 16px;flex:1;min-width:120px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(62,207,178,.12);border:1px solid rgba(62,207,178,.25);display:flex;align-items:center;justify-content:center;font-size:18px;">🟩</div>
+            <div style="font-size:12px;font-weight:600;text-align:center;">Croma Key</div>
+            <div style="font-size:11px;color:var(--muted2);text-align:center;">Rodaje + montaje</div>
+          </div>
+          <div style="font-size:20px;color:var(--muted);padding:0 4px;">→</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 16px;flex:1;min-width:120px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(232,93,117,.12);border:1px solid rgba(232,93,117,.25);display:flex;align-items:center;justify-content:center;font-size:18px;">▶️</div>
+            <div style="font-size:12px;font-weight:600;text-align:center;">YouTube</div>
+            <div style="font-size:11px;color:var(--muted2);text-align:center;">Publicar en 5 idiomas</div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title"><span class="ct-icon">📜</span>EP001 — Guion Técnico</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center">
           <span class="pill pill-gold">🟡 En Construcción</span>
           <span style="font-size:13px;color:var(--muted2)">Personajes: 🦁 Leo · 🐘 Buba · ~3 min</span>
         </div>
-        <div style="padding:16px;background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:var(--r-sm)">
-          <div style="font-size:13px;font-weight:600;color:var(--gold);margin-bottom:5px">⚡ Para completar EP001:</div>
-          <div style="font-size:13px;color:var(--muted2)">Confirma el <strong style="color:var(--text)">tema</strong>, <strong style="color:var(--text)">escenario</strong> y <strong style="color:var(--text)">muletillas</strong> de Leo y Buba — el guion técnico completo se genera al instante.</div>
+        <div style="padding:16px;background:rgba(123,94,167,.06);border:1px solid rgba(123,94,167,.2);border-radius:var(--r-sm)">
+          <div style="font-size:13px;font-weight:600;color:var(--violet);margin-bottom:8px;">⚡ Paso 1 — Usa el Story Editor</div>
+          <div style="font-size:13px;color:var(--muted2);margin-bottom:12px;">El Story Editor decide el casting, la moral y la estructura del episodio. Una vez guardado, el Agente de Guiones genera el guion técnico completo.</div>
+          <a href="https://mundosamadry.es/mst/story-editor.html" target="_blank" class="btn btn-gold" style="text-decoration:none;font-size:13px;">🎬 Abrir Story Editor →</a>
         </div>
       </div>
     </div>
